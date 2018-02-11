@@ -1,0 +1,1 @@
+WeExpenses is a sharing expense smart contract.
