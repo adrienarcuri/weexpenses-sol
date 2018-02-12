@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.10;
 
 /// @title WeExpenses : sharing expenses with WeExpenses.
 contract WeExpenses {
@@ -14,8 +14,8 @@ contract WeExpenses {
         string title; // title or designation of the expense
         uint amount; // amount of the expense
         uint date; // date of the expense
-        Participant payBy; // The participant who pays the expense
-        Participant[] payFor; // The list of participants who apply for the expense
+        address payBy; // The participant who pays the expense
+        address[] payFor; // The list of participants who apply for the expense
     }
 
     // This declares a state variable that
@@ -25,9 +25,17 @@ contract WeExpenses {
     // A dynamically-sized array of `Expenses` structs.
     Expense[] public expenses;
 
-    // CreateExpense add a new expense in the expenses list
-    function createExpense(Expense expense) internal {
+    // Create a new expense and add it in the expenses list
+    function createExpense(string title, uint amount, uint date, address payBy, address[] payFor) public {
+        Expense memory expense = Expense({title: title, amount: amount, date: date, payBy: payBy, payFor: payFor});
         expenses.push(expense);
+        syncBalance(expense, payBy);
+    }
+
+    // Create a new participant in the participants mapping
+    function createParticipant(string name, address waddress) public {
+        Participant memory participant = Participant({name: name, waddress: waddress, balance: 0});
+        participants[waddress] = participant;
     }
 
     // Synchronize the balance after each new expense
