@@ -25,6 +25,11 @@ contract WeExpenses {
     // A dynamically-sized array of `Expenses` structs.
     Expense[] public expenses;
 
+    /// Create a new WeExpenses contract with the creator as first participant
+    function WeExpenses(string name) public {
+        createParticipant(name, msg.sender);
+    }
+
     // Create a new expense and add it in the expenses list
     function createExpense(string title, uint amount, uint date, address payBy, address[] payFor) public {
         Expense memory expense = Expense({title: title, amount: amount, date: date, payBy: payBy, payFor: payFor});
