@@ -6,14 +6,14 @@ contract WeExpenses {
     struct Participant {
         string name; // name of the participant or the organization
         address waddress; // address of the participant
-        uint balance; // balance of the participant
+        int balance; // balance of the participant (int type because balance can be negative)
     }
 
     // Expense which will be part of all the expenses
     struct Expense {
         string title; // title or designation of the expense
-        uint amount; // amount of the expense
-        uint date; // date of the expense
+        uint amount; // amount of the expense (uint type because amount must not be negative)
+        uint date; // date of the expense 
         address payBy; // The participant who pays the expense
         address[] payFor; // The list of participants who apply for the expense
     }
@@ -46,9 +46,9 @@ contract WeExpenses {
     // Synchronize the balance after each new expense
     function syncBalance(Expense expense, address sender) internal {
         uint portion = expense.amount / expense.payFor.length;
-        participants[sender].balance += expense.amount;
+        participants[sender].balance += int(expense.amount);
         for (uint i = 0; i < expense.payFor.length; i++) {
-                participants[sender].balance -= portion;
+                participants[sender].balance -= int(portion);
         }        
     }
 
