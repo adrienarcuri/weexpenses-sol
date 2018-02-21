@@ -46,7 +46,10 @@ contract WeExpenses {
     function createExpense(string title, uint amount, uint date, address payBy, address[] payFor) external {
         Expense memory expense = Expense({title: title, amount: amount, date: date, payBy: payBy, payFor: payFor});
         expenses.push(expense);
-        syncBalanceExp(expense, payBy);
+        for (uint i = 0; i < expense.payFor.length; i++) {
+                expenses[expenses.length-1].payFor.push(expense.payFor[i]);
+        }     
+        syncBalanceExp(expense);
     }
 
     // Create a new participant in the participants mapping
@@ -63,11 +66,11 @@ contract WeExpenses {
     }
 
     // Synchronize the balance after each new expense
-    function syncBalanceExp(Expense expense, address sender) internal {
+    function syncBalanceExp(Expense expense) internal {
         uint portion = expense.amount / expense.payFor.length;
-        participants[sender].balance += int(expense.amount);
+        participants[expense.payBy].balance += int(expense.amount);
         for (uint i = 0; i < expense.payFor.length; i++) {
-                participants[sender].balance -= int(portion);
+                participants[expense.payFor[i]].balance -= int(portion);
         }        
     }
   
