@@ -44,11 +44,8 @@ contract WeExpenses {
 
     // Create a new expense and add it in the expenses list
     function createExpense(string title, uint amount, uint date, address payBy, address[] payFor) external {
-        Expense memory expense = Expense({title: title, amount: amount, date: date, payBy: payBy, payFor: payFor});
+        Expense memory expense = Expense(title, amount, date, payBy, payFor);
         expenses.push(expense);
-        for (uint i = 0; i < expense.payFor.length; i++) {
-                expenses[expenses.length-1].payFor.push(expense.payFor[i]);
-        }     
         syncBalanceExp(expense);
     }
 
@@ -78,6 +75,11 @@ contract WeExpenses {
     function syncBalanceRef(address to, uint amount) internal {
         participants[to].balance -= int(amount);
         participants[msg.sender].balance += int(amount);
+    }
+
+    // Get the list of PayFor of an expense
+    function getExpensePayFor(uint i) public view returns (address[]){
+      return expenses[i].payFor;
     }
     
 }
