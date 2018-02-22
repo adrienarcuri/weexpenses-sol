@@ -81,8 +81,8 @@ contract WeExpenses {
         int max = participants[addressList[0]].balance;
         uint index = 0;
         for (uint i = 1; i < addressList.length; i++) {
-            if(max != max256(max, participants[addressList[i]].balance)) {
-                max=participants[addressList[i]].balance;
+            if (max != max256(max, participants[addressList[i]].balance)) {
+                max = participants[addressList[i]].balance;
                 index = i;
             }
         }
@@ -96,7 +96,7 @@ contract WeExpenses {
     }
 
     // Get the list of PayFor of an expense
-    function getExpensePayFor(uint i) public view returns (address[]){
+    function getExpensePayFor(uint i) public view returns (address[]) {
       return expenses[i].payFor;
     }
 
