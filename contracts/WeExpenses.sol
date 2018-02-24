@@ -93,6 +93,16 @@ contract WeExpenses {
     function getBalance(address waddress) public view returns (int) {
         return participants[waddress].balance;
     }
+
+    // Get Participant
+    function getParticipant(address waddress) public view returns (Participant) {
+        return participants[waddress];
+    }
+
+    // Get Expense
+    function getExpense(uint i) public view returns (Expense) {
+        return expenses[i];
+    }
   
     // Synchronize the balance after each new refund
     function syncBalanceRef(address to, uint amount) internal {
