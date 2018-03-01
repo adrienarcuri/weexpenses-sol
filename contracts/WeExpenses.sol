@@ -84,7 +84,7 @@ contract WeExpenses {
                 index = i;
             }
         }
-        return (max,index);
+        return (max, index);
     }
 
     // Get Balance of a participant
