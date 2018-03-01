@@ -26,7 +26,6 @@ contract TestWeExpenses {
         checkGetBalance(SENDER_C, 0);
         checkGetBalance(SENDER_D, 0);
         checkGetMaxBalance(0, 0);
-
     }
 
     function testCreateExpense1() public {
@@ -36,6 +35,8 @@ contract TestWeExpenses {
         checkGetBalance(SENDER_C, -2500);
         checkGetBalance(SENDER_D, -2500);
         checkGetMaxBalance(7500, 0);
+        weExpenses.giveAgreement(0);
+        checkGetAgreement(0, msg.sender, true);
     }
 
     function testCreateExpense2() public {
@@ -127,6 +128,10 @@ contract TestWeExpenses {
         var (max, index) = weExpenses.getMaxBalance();
         Assert.equal(max, expectedMax, "MaxBalance should be equal");
         Assert.equal(index, expectedIndex, "Index should be equal");
+    }
+
+    function checkGetAgreement(uint indexExpense, address waddress, bool expectedAgreement) public {
+        Assert.equal(weExpenses.getAgreement(indexExpense, waddress), expectedAgreement, "Agreement should be equal");
     }
 
 }

@@ -17,6 +17,7 @@ contract WeExpenses {
         uint date; // date of the expense 
         address payBy; // The participant who pays the expense
         address[] payFor; // The list of participants who apply for the expense
+        mapping(address => bool)  agreements; //  Allow to know if a participant in the payFor array have given is agreement to contributes to the expense
     }
 
     // Refund which will be part of all the refunds
@@ -48,6 +49,17 @@ contract WeExpenses {
         Expense memory expense = Expense(title, amount, date, payBy, payFor);
         expenses.push(expense);
         syncBalanceExp(expense);
+    }
+
+    // Give agreement of the sender to an expense
+    function giveAgreement(uint indexExpense) public {
+        Expense storage expense = expenses[indexExpense];
+        expense.agreements[msg.sender] = true;
+    }
+
+    // Get agreement of depending on the indexExpenses and address of the participant
+    function getAgreement(uint indexExpense, address waddress) public view returns (bool) {
+        return expenses[indexExpense].agreements[waddress];
     }
 
     // Create a new participant in the participants mapping
@@ -94,11 +106,6 @@ contract WeExpenses {
     // Get Participant
     function getParticipant(address waddress) public view returns (Participant) {
         return participants[waddress];
-    }
-
-    // Get Expense
-    function getExpense(uint i) public view returns (Expense) {
-        return expenses[i];
     }
   
     // Synchronize the balance after each new refund
