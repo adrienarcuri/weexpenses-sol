@@ -10,13 +10,13 @@ contract TestWeExpenses {
     address constant SENDER_C = 0x4B0897b0513fdC7C541B6d9D7E929C4e5364D2dB;
     address constant SENDER_D = 0x583031D1113aD414F02576BD6afaBfb302140225;
 
-    address[] payFor1 = [SENDER_A, SENDER_B, SENDER_C, SENDER_D];
-    address[] payFor2 = [SENDER_A, SENDER_B];
-    address[] payFor3 = [SENDER_A, SENDER_B, SENDER_D];
+    address[] payForABCD = [SENDER_A, SENDER_B, SENDER_C, SENDER_D];
+    address[] payForAB = [SENDER_A, SENDER_B];
+    address[] payForABD = [SENDER_A, SENDER_B, SENDER_D];
 
     WeExpenses weExpenses = new WeExpenses();
 
-    function testCreateParticipant() public {
+    function testCreateParticipants() public {
         weExpenses.createParticipant("Alice", SENDER_A);
         weExpenses.createParticipant("Bob", SENDER_B);
         weExpenses.createParticipant("Cris", SENDER_C);
@@ -26,33 +26,97 @@ contract TestWeExpenses {
         checkGetBalance(SENDER_C, 0);
         checkGetBalance(SENDER_D, 0);
         checkGetMaxBalance(0, 0);
+
     }
 
-    function testCreateExpense() public {
-        weExpenses.createExpense("Expense1", 100, 1519135382, SENDER_A, payFor1);
-        checkGetBalance(SENDER_A, 75);
-        checkGetBalance(SENDER_B, -25);
-        checkGetBalance(SENDER_C, -25);
-        checkGetBalance(SENDER_D, -25);
-        checkGetMaxBalance(75, 0);
+    function testCreateExpense1() public {
+        weExpenses.createExpense("Expense1", 10000, 1519135382, SENDER_A, payForABCD);
+        checkGetBalance(SENDER_A, 7500);
+        checkGetBalance(SENDER_B, -2500);
+        checkGetBalance(SENDER_C, -2500);
+        checkGetBalance(SENDER_D, -2500);
+        checkGetMaxBalance(7500, 0);
     }
 
     function testCreateExpense2() public {
-        weExpenses.createExpense("Expense2", 50, 1519135382, SENDER_B, payFor2);
-        checkGetBalance(SENDER_A, 50);
+        weExpenses.createExpense("Expense2", 5000, 1519135382, SENDER_B, payForAB);
+        checkGetBalance(SENDER_A, 5000);
         checkGetBalance(SENDER_B, 0);
-        checkGetBalance(SENDER_C, -25);
-        checkGetBalance(SENDER_D, -25);
-        checkGetMaxBalance(50, 0);
+        checkGetBalance(SENDER_C, -2500);
+        checkGetBalance(SENDER_D, -2500);
+        checkGetMaxBalance(5000, 0);
     }
 
     function testCreateExpense3() public {
-        weExpenses.createExpense("Expense3", 300, 1519135382, SENDER_C, payFor3);
-        checkGetBalance(SENDER_A, -50);
-        checkGetBalance(SENDER_B, -100);
-        checkGetBalance(SENDER_C, 275);
-        checkGetBalance(SENDER_D, -125);
-        checkGetMaxBalance(275, 2);
+        weExpenses.createExpense("Expense3", 30000, 1519135382, SENDER_C, payForABD);
+        checkGetBalance(SENDER_A, -5000);
+        checkGetBalance(SENDER_B, -10000);
+        checkGetBalance(SENDER_C, 27500);
+        checkGetBalance(SENDER_D, -12500);
+        checkGetMaxBalance(27500, 2);
+    }
+
+    function testCreateRefund1() public {
+        weExpenses.createRefund("Refund1", 5000, 1519135382, SENDER_A, SENDER_C);
+        checkGetBalance(SENDER_A, 0);
+        checkGetBalance(SENDER_B, -10000);
+        checkGetBalance(SENDER_C, 22500);
+        checkGetBalance(SENDER_D, -12500);
+        checkGetMaxBalance(22500, 2);
+    }
+
+    function testCreateRefund2() public {
+        weExpenses.createRefund("Refund2", 10000, 1519135382, SENDER_B, SENDER_C);
+        checkGetBalance(SENDER_A, 0);
+        checkGetBalance(SENDER_B, 0);
+        checkGetBalance(SENDER_C, 12500);
+        checkGetBalance(SENDER_D, -12500);
+        checkGetMaxBalance(12500, 2);
+    }
+
+    function testCreateRefund3() public {
+        weExpenses.createRefund("Refund3", 12500, 1519135382, SENDER_D, SENDER_C);
+        checkGetBalance(SENDER_A, 0);
+        checkGetBalance(SENDER_B, 0);
+        checkGetBalance(SENDER_C, 0);
+        checkGetBalance(SENDER_D, 0);
+        checkGetMaxBalance(0, 0);
+    }
+
+    function testCreateExpense4() public {
+        weExpenses.createExpense("Expense4", 10000, 1519135382, SENDER_C, payForABD);
+        checkGetBalance(SENDER_A, -3333);
+        checkGetBalance(SENDER_B, -3333);
+        checkGetBalance(SENDER_C, 10000);
+        checkGetBalance(SENDER_D, -3333);
+        checkGetMaxBalance(10000, 2);
+    }
+
+    function testCreateRefund4() public {
+        weExpenses.createRefund("Refund4", 3333, 1519135382, SENDER_A, SENDER_C);
+        checkGetBalance(SENDER_A, 0);
+        checkGetBalance(SENDER_B, -3333);
+        checkGetBalance(SENDER_C, 6667);
+        checkGetBalance(SENDER_D, -3333);
+        checkGetMaxBalance(6667, 2);
+    }
+
+    function testCreateRefund5() public {
+        weExpenses.createRefund("Refund5", 3333, 1519135382, SENDER_B, SENDER_C);
+        checkGetBalance(SENDER_A, 0);
+        checkGetBalance(SENDER_B, 0);
+        checkGetBalance(SENDER_C, 3334);
+        checkGetBalance(SENDER_D, -3333);
+        checkGetMaxBalance(3334, 2);
+    }
+
+    function testCreateRefund6() public {
+        weExpenses.createRefund("Refund6", 3333, 1519135382, SENDER_D, SENDER_C);
+        checkGetBalance(SENDER_A, 0);
+        checkGetBalance(SENDER_B, 0);
+        checkGetBalance(SENDER_C, 1);
+        checkGetBalance(SENDER_D, 0);
+        checkGetMaxBalance(1, 2);
     }
     
     function checkGetBalance(address waddress, int expectedBalance) public {
@@ -66,6 +130,5 @@ contract TestWeExpenses {
     }
 
 }
-
 
 

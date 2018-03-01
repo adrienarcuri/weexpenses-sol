@@ -6,14 +6,14 @@ contract WeExpenses {
     struct Participant {
         string name; // name of the participant or the organization
         address waddress; // address of the participant
-        int balance; // balance of the participant (int type because balance can be negative)
+        int balance; // balance of the participant in cents (int type because balance can be negative).
         uint index; // index of the participant in the address list
     }
 
     // Expense which will be part of all the expenses
     struct Expense {
         string title; // title or designation of the expense
-        uint amount; // amount of the expense (uint type because amount must not be negative)
+        uint amount; // amount of the expense in cents (uint type because amount must not be negative)
         uint date; // date of the expense 
         address payBy; // The participant who pays the expense
         address[] payFor; // The list of participants who apply for the expense
@@ -22,7 +22,7 @@ contract WeExpenses {
     // Refund which will be part of all the refunds
     struct Refund {
         string title; // title or designation of the refund
-        uint amount; // amount of the refund (uint type because amount must not be negative)
+        uint amount; // amount of the refund in cents(uint type because amount must not be negative)
         uint date; // date of the refund
         address refundBy; // The participant who refunds
         address refundFor; // The refunded participant
@@ -34,14 +34,13 @@ contract WeExpenses {
 
     address[] public addressList;
     
-
     // A dynamically-sized array of `Expenses` structs.
     Expense[] public expenses;
 
     // A dynamically-sized array of `Refunds` structs.
     Refund[] public refunds;    
 
-    /// Create a new WeExpenses
+    /// Create a new WeExpenses contract
     function WeExpenses() public {}
 
     // Create a new expense and add it in the expenses list
@@ -62,7 +61,7 @@ contract WeExpenses {
     function createRefund(string title, uint amount, uint date, address refundBy, address refundFor) external {
         Refund memory refund = Refund({title: title, amount: amount, date: date, refundBy: refundBy, refundFor: refundFor});
         refunds.push(refund);
-        syncBalanceRef(refundFor, amount);
+        syncBalanceRef(refund);
     }
 
     // Synchronize the balance after each new expense
@@ -103,9 +102,9 @@ contract WeExpenses {
     }
   
     // Synchronize the balance after each new refund
-    function syncBalanceRef(address to, uint amount) internal {
-        participants[to].balance -= int(amount);
-        participants[msg.sender].balance += int(amount);
+    function syncBalanceRef(Refund refund) internal {
+        participants[refund.refundFor].balance -= int(refund.amount);
+        participants[refund.refundBy].balance += int(refund.amount);
     }
 
     // Get the list of PayFor of an expense
