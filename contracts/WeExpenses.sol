@@ -41,10 +41,8 @@ contract WeExpenses {
     // A dynamically-sized array of `Refunds` structs.
     Refund[] public refunds;    
 
-    /// Create a new WeExpenses contract with the creator as first participant
-    function WeExpenses(string name) public {
-        createParticipant(name, msg.sender);
-    }
+    /// Create a new WeExpenses
+    function WeExpenses() public {}
 
     // Create a new expense and add it in the expenses list
     function createExpense(string title, uint amount, uint date, address payBy, address[] payFor) external {
