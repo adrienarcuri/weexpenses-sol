@@ -5,6 +5,7 @@ import "truffle/DeployedAddresses.sol";
 import "../contracts/WeExpenses.sol";
 
 contract TestWeExpenses {
+    //address constant SENDER_0 = tx.origin;
     address constant SENDER_A = 0xCA35b7d915458EF540aDe6068dFe2F44E8fa733c;
     address constant SENDER_B = 0x14723A09ACff6D2A60DcdF7aA4AFf308FDDC160C;
     address constant SENDER_C = 0x4B0897b0513fdC7C541B6d9D7E929C4e5364D2dB;
@@ -14,7 +15,7 @@ contract TestWeExpenses {
     address[] payForAB = [SENDER_A, SENDER_B];
     address[] payForABD = [SENDER_A, SENDER_B, SENDER_D];
 
-    WeExpenses weExpenses = new WeExpenses();
+    WeExpenses weExpenses = new WeExpenses("God");
 
     function testCreateParticipants() public {
         weExpenses.createParticipant("Alice", SENDER_A);

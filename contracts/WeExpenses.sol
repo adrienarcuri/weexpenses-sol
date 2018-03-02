@@ -39,20 +39,44 @@ contract WeExpenses {
     Expense[] public expenses;
 
     // A dynamically-sized array of `Refunds` structs.
-    Refund[] public refunds;    
+    Refund[] public refunds;
+
+    // This modifier requires that the sender of the transaction is registred as participant
+    modifier onlyByParticipant () {
+        require(msg.sender == participants[msg.sender].waddress); // You must be a participant to create an expense
+        _;
+    }
 
     /// Create a new WeExpenses contract
-    function WeExpenses() public {}
+    function WeExpenses(string name) public {
+        createParticipant(name, msg.sender);
+    }
 
     // Create a new expense and add it in the expenses list
-    function createExpense(string title, uint amount, uint date, address payBy, address[] payFor) external {
+    function createExpense(string title, uint amount, uint date,
+     address payBy, address[] payFor) external onlyByParticipant() {
+        verifyIfParticipant(payBy);
+        verifyIfParticipants(payFor);
+
         Expense memory expense = Expense(title, amount, date, payBy, payFor);
         expenses.push(expense);
         syncBalanceExp(expense);
     }
 
+    // Verify if several addresses are registred as participant
+    function verifyIfParticipants(address[] listAdress) internal view {
+        for(uint i=0; i < listAdress.length; i++) {
+            verifyIfParticipant(listAdress[i]);
+        }
+    }
+
+    // Verify if an address is registered as participant
+    function verifyIfParticipant(address waddress) internal view {
+        require(waddress == participants[waddress].waddress);
+    }
+
     // Give agreement of the sender to an expense
-    function giveAgreement(uint indexExpense) public {
+    function giveAgreement(uint indexExpense) onlyByParticipant() public {
         Expense storage expense = expenses[indexExpense];
         expense.agreements[msg.sender] = true;
     }
@@ -63,14 +87,18 @@ contract WeExpenses {
     }
 
     // Create a new participant in the participants mapping
-    function createParticipant(string name, address waddress) public {
+    function createParticipant(string name, address waddress) onlyByParticipant() public {
+        require(waddress != participants[waddress].waddress); //only one address per participant
         Participant memory participant = Participant({name: name, waddress: waddress, balance: 0, index: 0});
         participant.index = addressList.push(waddress)-1; //add the address to the addressList
         participants[waddress] = participant;
     }
 
     // Create a new refund and add it in the refunds list
-    function createRefund(string title, uint amount, uint date, address refundBy, address refundFor) external {
+    function createRefund(string title, uint amount, uint date,
+     address refundBy, address refundFor) onlyByParticipant() external {
+        verifyIfParticipant(refundBy);
+        verifyIfParticipant(refundFor);
         Refund memory refund = Refund({title: title, amount: amount, date: date, refundBy: refundBy, refundFor: refundFor});
         refunds.push(refund);
         syncBalanceRef(refund);
