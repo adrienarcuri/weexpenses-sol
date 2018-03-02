@@ -34,6 +34,8 @@ contract WeExpenses {
     mapping(address => Participant) public participants;
 
     address[] public addressList;
+
+    bool public deployed = false; // Allow the creation of the first participant when the contract deployed
     
     // A dynamically-sized array of `Expenses` structs.
     Expense[] public expenses;
@@ -43,30 +45,47 @@ contract WeExpenses {
 
     // This modifier requires that the sender of the transaction is registred as participant
     modifier onlyByParticipant () {
-        require(msg.sender == participants[msg.sender].waddress); // You must be a participant to create an expense
+        require(msg.sender == participants[msg.sender].waddress || !deployed); // You must be a participant to create an expense
         _;
     }
 
     /// Create a new WeExpenses contract
     function WeExpenses(string name) public {
         createParticipant(name, msg.sender);
+        deployed = true;
     }
 
     // Create a new expense and add it in the expenses list
     function createExpense(string title, uint amount, uint date,
      address payBy, address[] payFor) external onlyByParticipant() {
+        require(payFor.length <= 20); // Limit the number of contributors of one expense
         verifyIfParticipant(payBy);
         verifyIfParticipants(payFor);
+        require(!isDuplicateInPayFor(payFor));
 
         Expense memory expense = Expense(title, amount, date, payBy, payFor);
         expenses.push(expense);
         syncBalanceExp(expense);
     }
 
+    // Verify if several addresses are registred as participant. Return true if we found duplicate else false.
+    function isDuplicateInPayFor(address[] listAddress) internal pure returns (bool) {
+        uint counter;
+        for (uint i=0; i<listAddress.length; i++) {
+            counter = 0;
+            address addr = listAddress[i];
+            for (uint j=0; j<listAddress.length; j++) {
+                if (addr == listAddress[j]) { counter++; }
+                if (counter == 2) { return true; }
+            }
+        }
+        return false;
+    }
+
     // Verify if several addresses are registred as participant
-    function verifyIfParticipants(address[] listAdress) internal view {
-        for(uint i=0; i < listAdress.length; i++) {
-            verifyIfParticipant(listAdress[i]);
+    function verifyIfParticipants(address[] listAddress) internal view {
+        for(uint i=0; i < listAddress.length; i++) {
+            verifyIfParticipant(listAddress[i]);
         }
     }
 
@@ -82,13 +101,13 @@ contract WeExpenses {
     }
 
     // Get agreement of depending on the indexExpenses and address of the participant
-    function getAgreement(uint indexExpense, address waddress) public view returns (bool) {
+    function getAgreement(uint indexExpense, address waddress)  public view returns (bool) {
         return expenses[indexExpense].agreements[waddress];
     }
 
     // Create a new participant in the participants mapping
     function createParticipant(string name, address waddress) onlyByParticipant() public {
-        require(waddress != participants[waddress].waddress); //only one address per participant
+        require(waddress != participants[waddress].waddress || !deployed); //only one address per participant
         Participant memory participant = Participant({name: name, waddress: waddress, balance: 0, index: 0});
         participant.index = addressList.push(waddress)-1; //add the address to the addressList
         participants[waddress] = participant;
@@ -129,11 +148,6 @@ contract WeExpenses {
     // Get Balance of a participant
     function getBalance(address waddress) public view returns (int) {
         return participants[waddress].balance;
-    }
-
-    // Get Participant
-    function getParticipant(address waddress) public view returns (Participant) {
-        return participants[waddress];
     }
   
     // Synchronize the balance after each new refund
