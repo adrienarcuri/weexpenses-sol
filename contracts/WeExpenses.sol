@@ -95,14 +95,37 @@ contract WeExpenses {
     }
 
     // Give agreement of the sender to an expense
-    function giveAgreement(uint indexExpense) onlyByParticipant() public {
+    function setAgreement(uint indexExpense, bool agree) onlyByParticipant() public {
+        uint numberOfAgreeBefore = getNumberOfAgreements();
+        require(expense.agreements);
         Expense storage expense = expenses[indexExpense];
-        expense.agreements[msg.sender] = true;
+        expense.agreements[msg.sender] = agree;
+        uint numberOfAgreeAfter = getNumberOfAgreements();
+        if (numberOfAgreeBefore == 0 && numberOfAgreeAfter == 1) {
+            syncBalance(indexExpense);
+        } else if (numberOfAgreeBefore == 1 && numberOfAgreeAfter == 0){
+            revertBalance(indexExpense);
+        } else{
+            revertBalance(indexExpense);
+            syncBalance(indexExpense);
+        }
     }
 
     // Get agreement of depending on the indexExpenses and address of the participant
     function getAgreement(uint indexExpense, address waddress)  public view returns (bool) {
         return expenses[indexExpense].agreements[waddress];
+    }
+
+    // Get the number of agreements of a given expense
+    function getNumberOfAgreements(uint indexExpense) public returns (uint) {
+        Expense storage expense = expenses[indexExpense];
+        uint numberOfAgreements = 0;
+        for (uint i = 0; i < expense.payFor.length; i++) {
+            if(expense.agreements[expense.payFor[i]] == true) {
+                numberOfAgreements++;
+            }                
+        }
+        return numberOfAgreements;  
     }
 
     // Create a new participant in the participants mapping
@@ -125,11 +148,46 @@ contract WeExpenses {
 
     // Synchronize the balance after each new expense
     function syncBalanceExp(Expense expense) internal {
-        uint portion = expense.amount / expense.payFor.length;
+        uint contributors = getNumberOfAgreements(index);
+        require(contributors > 0);
+
+        uint portion = expense.amount / contributors;
         participants[expense.payBy].balance += int(expense.amount);
         for (uint i = 0; i < expense.payFor.length; i++) {
                 participants[expense.payFor[i]].balance -= int(portion);
         }       
+    }
+
+    // Synchronize the balance after each new expense #NEW
+    function syncBalance(uint indexExpense) internal {
+        uint contributors = getNumberOfAgreements(indexExpense);
+        require(contributors > 0);
+        Expense memory expense = expenses[indexExpense].amount;
+        uint portion = expense.amount / contributors;
+        participants[expense.payBy].balance += int(expense.amount);
+        for (uint i = 0; i < expense.payFor.length; i++) {
+            if (expense.agreement[expense.payFor[i]]){
+                participants[expense.payFor[i]].balance -= int(portion);
+            }   
+        }       
+    }
+
+    // Revert the state of the balance before to add the expense
+    function revertBalance(uint indexExpense) internal {
+        uint contributors = getNumberOfAgreements(indexExpense);
+        require(contributors > 0);
+        Expense memory expense = expenses[indexExpense].amount;
+        uint portion = expense.amount / contributors;
+        participants[expense.payBy].balance -= int(expense.amount);
+        for (uint i = 0; i < expense.payFor.length; i++) {
+            if (expense.agreement[expense.payFor[i]]){
+                participants[expense.payFor[i]].balance += int(portion);
+            }   
+        }       
+    }
+
+    function triggerSync() public {
+
     }
 
     // Return maximum balance and the index of the list of participants
