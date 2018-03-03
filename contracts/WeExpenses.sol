@@ -17,7 +17,7 @@ contract WeExpenses {
         uint date; // date of the expense 
         address payBy; // The participant who pays the expense
         address[] payFor; // The list of participants who apply for the expense
-        mapping(address => bool)  agreements; //  Allow to know if a participant in the payFor array have given is agreement to contributes to the expense
+        mapping(address => bool) agreements; //  Allow to know if a participant in the payFor array have given is agreement to contributes to the expense
     }
 
     // Refund which will be part of all the refunds
@@ -43,6 +43,9 @@ contract WeExpenses {
     // A dynamically-sized array of `Refunds` structs.
     Refund[] public refunds;
 
+    // A mapping of all the available refunds to withdraw per address
+    mapping(address => uint) public refundsAvailaible;
+
     // This modifier requires that the sender of the transaction is registred as participant
     modifier onlyByParticipant () {
         require(msg.sender == participants[msg.sender].waddress || !deployed); // You must be a participant to create an expense
@@ -57,7 +60,8 @@ contract WeExpenses {
 
     // Create a new expense and add it in the expenses list
     function createExpense(string title, uint amount, uint date,
-     address payBy, address[] payFor) external onlyByParticipant() {
+     address payBy, address[] payFor) external onlyByParticipant()
+     {
         require(payFor.length <= 20); // Limit the number of contributors of one expense
         verifyIfParticipant(payBy);
         verifyIfParticipants(payFor);
@@ -84,7 +88,7 @@ contract WeExpenses {
 
     // Verify if several addresses are registred as participant
     function verifyIfParticipants(address[] listAddress) internal view {
-        for(uint i=0; i < listAddress.length; i++) {
+        for (uint i = 0; i < listAddress.length; i++) {
             verifyIfParticipant(listAddress[i]);
         }
     }
@@ -103,9 +107,9 @@ contract WeExpenses {
         uint numberOfAgreeAfter = getNumberOfAgreements();
         if (numberOfAgreeBefore == 0 && numberOfAgreeAfter == 1) {
             syncBalance(indexExpense);
-        } else if (numberOfAgreeBefore == 1 && numberOfAgreeAfter == 0){
+        } else if (numberOfAgreeBefore == 1 && numberOfAgreeAfter == 0) {
             revertBalance(indexExpense);
-        } else{
+        } else {
             revertBalance(indexExpense);
             syncBalance(indexExpense);
         }
@@ -121,7 +125,7 @@ contract WeExpenses {
         Expense storage expense = expenses[indexExpense];
         uint numberOfAgreements = 0;
         for (uint i = 0; i < expense.payFor.length; i++) {
-            if(expense.agreements[expense.payFor[i]] == true) {
+            if (expense.agreements[expense.payFor[i]] == true) {
                 numberOfAgreements++;
             }                
         }
@@ -136,14 +140,24 @@ contract WeExpenses {
         participants[waddress] = participant;
     }
 
-    // Create a new refund and add it in the refunds list
-    function createRefund(string title, uint amount, uint date,
-     address refundBy, address refundFor) onlyByParticipant() external {
+    // Create a payable refund in ether
+    function createRefund(string title, uint date,
+     address refundBy, address refundFor) onlyByParticipant() public payable
+    {
         verifyIfParticipant(refundBy);
         verifyIfParticipant(refundFor);
-        Refund memory refund = Refund({title: title, amount: amount, date: date, refundBy: refundBy, refundFor: refundFor});
+        Refund memory refund = Refund({title: title, amount: msg.value, date: date, refundBy: refundBy, refundFor: refundFor});
         refunds.push(refund);
+        refundsAvailaible[refundFor] += msg.value;
         syncBalanceRef(refund);
+    }
+
+    function withdraw() public {
+        require(refundsAvailaible[msg.sender] > 0);
+
+        uint amount = refundsAvailaible[msg.sender];
+        refundsAvailaible[msg.sender] = 0;
+        msg.sender.transfer(amount);
     }
 
     // Synchronize the balance after each new expense
@@ -166,7 +180,7 @@ contract WeExpenses {
         uint portion = expense.amount / contributors;
         participants[expense.payBy].balance += int(expense.amount);
         for (uint i = 0; i < expense.payFor.length; i++) {
-            if (expense.agreement[expense.payFor[i]]){
+            if (expense.agreement[expense.payFor[i]]) {
                 participants[expense.payFor[i]].balance -= int(portion);
             }   
         }       
@@ -180,14 +194,10 @@ contract WeExpenses {
         uint portion = expense.amount / contributors;
         participants[expense.payBy].balance -= int(expense.amount);
         for (uint i = 0; i < expense.payFor.length; i++) {
-            if (expense.agreement[expense.payFor[i]]){
+            if (expense.agreement[expense.payFor[i]]) {
                 participants[expense.payFor[i]].balance += int(portion);
             }   
         }       
-    }
-
-    function triggerSync() public {
-
     }
 
     // Return maximum balance and the index of the list of participants
