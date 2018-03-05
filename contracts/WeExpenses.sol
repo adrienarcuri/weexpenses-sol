@@ -14,7 +14,8 @@ contract WeExpenses {
     struct Expense {
         string title; // title or designation of the expense
         uint amount; // amount of the expense in cents (uint type because amount must not be negative)
-        uint date; // date of the expense 
+        uint valueDate; // date when the expense has been made
+        uint creationDate; // date of creation in the system 
         address payBy; // The participant who pays the expense
         address[] payFor; // The list of participants who apply for the expense
         mapping(address => bool) agreements; //  Allow to know if a participant in the payFor array have given is agreement to contributes to the expense
@@ -67,7 +68,7 @@ contract WeExpenses {
         verifyIfParticipants(payFor);
         require(!isDuplicateInPayFor(payFor));
 
-        Expense memory expense = Expense(title, amount, date, payBy, payFor);
+        Expense memory expense = Expense(title, amount, date, now, payBy, payFor);
         expenses.push(expense);
         //syncBalanceExp(expense);
         //syncBalance(expenses.length-1);
@@ -102,6 +103,7 @@ contract WeExpenses {
     // Give agreement of the sender to an expense
     function setAgreement(uint indexExpense, bool agree) onlyByParticipant() public {
         Expense storage expense = expenses[indexExpense];
+        require(expense.creationDate > expense.creationDate + 4 weeks); // May only be called 4 weeks after the expense has been created
         require(expense.agreements[msg.sender] != agree);
         uint numberOfAgreeBefore = getNumberOfAgreements(indexExpense);
         // Warning : There is no agreements when the expense is created. That's mean the balance did not synchronize.
