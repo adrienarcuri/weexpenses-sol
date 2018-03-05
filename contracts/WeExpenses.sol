@@ -1,6 +1,10 @@
 pragma solidity ^0.4.10;
 
-/// @title WeExpenses : sharing expenses with WeExpenses.
+/// @title A group expenses smart contract allowing you to settle up your debts and credits
+/// @author Adrien Arcuri
+/// @notice You can use this contract to record your group expenses, refund participants,
+/// check the debts and credits of the groups and settle up.
+/// @dev No comments for dev
 contract WeExpenses {
     // Participant is a person or an organization which can be part of 
     struct Participant {
