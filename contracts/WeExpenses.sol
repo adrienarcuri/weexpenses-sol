@@ -62,25 +62,26 @@ contract WeExpenses {
     function createExpense(string title, uint amount, uint date,
      address payBy, address[] payFor) external onlyByParticipant()
      {
-        require(payFor.length <= 20); // Limit the number of contributors of one expense
+        require(payFor.length > 0 && payFor.length <= 20); // Limit the number of contributors of one expense
         verifyIfParticipant(payBy);
         verifyIfParticipants(payFor);
         require(!isDuplicateInPayFor(payFor));
 
         Expense memory expense = Expense(title, amount, date, payBy, payFor);
         expenses.push(expense);
-        syncBalanceExp(expense);
+        //syncBalanceExp(expense);
+        //syncBalance(expenses.length-1);
     }
 
     // Verify if several addresses are registred as participant. Return true if we found duplicate else false.
     function isDuplicateInPayFor(address[] listAddress) internal pure returns (bool) {
         uint counter;
-        for (uint i=0; i<listAddress.length; i++) {
+        for (uint i = 0; i<listAddress.length; i++) {
             counter = 0;
             address addr = listAddress[i];
-            for (uint j=0; j<listAddress.length; j++) {
-                if (addr == listAddress[j]) { counter++; }
-                if (counter == 2) { return true; }
+            for (uint j = 0; j<listAddress.length; j++) {
+                if (addr == listAddress[j]) {counter++;}
+                if (counter == 2) {return true;}
             }
         }
         return false;
@@ -100,17 +101,21 @@ contract WeExpenses {
 
     // Give agreement of the sender to an expense
     function setAgreement(uint indexExpense, bool agree) onlyByParticipant() public {
-        uint numberOfAgreeBefore = getNumberOfAgreements();
-        require(expense.agreements);
         Expense storage expense = expenses[indexExpense];
+        require(expense.agreements[msg.sender] != agree);
+        uint numberOfAgreeBefore = getNumberOfAgreements(indexExpense);
+        // Warning : There is no agreements when the expense is created. That's mean the balance did not synchronize.
+        // If the number of agreements before is not 0, we revert the balance to the previous state without the expense
+        if (numberOfAgreeBefore != 0) {
+            revertBalance(indexExpense);
+        }
+
+        // Update the number of agreements
         expense.agreements[msg.sender] = agree;
-        uint numberOfAgreeAfter = getNumberOfAgreements();
-        if (numberOfAgreeBefore == 0 && numberOfAgreeAfter == 1) {
-            syncBalance(indexExpense);
-        } else if (numberOfAgreeBefore == 1 && numberOfAgreeAfter == 0) {
-            revertBalance(indexExpense);
-        } else {
-            revertBalance(indexExpense);
+        uint numberOfAgreeAfter = getNumberOfAgreements(indexExpense);
+
+        // If the number of agreements after is not 0, we syncrhonize the balance
+        if (numberOfAgreeAfter != 0) {
             syncBalance(indexExpense);
         }
     }
@@ -121,7 +126,7 @@ contract WeExpenses {
     }
 
     // Get the number of agreements of a given expense
-    function getNumberOfAgreements(uint indexExpense) public returns (uint) {
+    function getNumberOfAgreements(uint indexExpense) public view returns (uint) {
         Expense storage expense = expenses[indexExpense];
         uint numberOfAgreements = 0;
         for (uint i = 0; i < expense.payFor.length; i++) {
@@ -143,7 +148,8 @@ contract WeExpenses {
     // Create a payable refund in ether
     function createRefund(string title, uint date,
      address refundBy, address refundFor) onlyByParticipant() public payable
-    {
+    {   
+        require(msg.value > 0);
         verifyIfParticipant(refundBy);
         verifyIfParticipant(refundFor);
         Refund memory refund = Refund({title: title, amount: msg.value, date: date, refundBy: refundBy, refundFor: refundFor});
@@ -152,15 +158,16 @@ contract WeExpenses {
         syncBalanceRef(refund);
     }
 
+    // Allow participant to withdraw available for them amount stored in the smart contract
     function withdraw() public {
         require(refundsAvailaible[msg.sender] > 0);
-
         uint amount = refundsAvailaible[msg.sender];
         refundsAvailaible[msg.sender] = 0;
         msg.sender.transfer(amount);
     }
 
     // Synchronize the balance after each new expense
+    /** 
     function syncBalanceExp(Expense expense) internal {
         uint contributors = getNumberOfAgreements(index);
         require(contributors > 0);
@@ -171,16 +178,17 @@ contract WeExpenses {
                 participants[expense.payFor[i]].balance -= int(portion);
         }       
     }
+    */
 
     // Synchronize the balance after each new expense #NEW
     function syncBalance(uint indexExpense) internal {
         uint contributors = getNumberOfAgreements(indexExpense);
         require(contributors > 0);
-        Expense memory expense = expenses[indexExpense].amount;
+        Expense storage expense = expenses[indexExpense];
         uint portion = expense.amount / contributors;
         participants[expense.payBy].balance += int(expense.amount);
         for (uint i = 0; i < expense.payFor.length; i++) {
-            if (expense.agreement[expense.payFor[i]]) {
+            if (expense.agreements[expense.payFor[i]]) {
                 participants[expense.payFor[i]].balance -= int(portion);
             }   
         }       
@@ -190,11 +198,11 @@ contract WeExpenses {
     function revertBalance(uint indexExpense) internal {
         uint contributors = getNumberOfAgreements(indexExpense);
         require(contributors > 0);
-        Expense memory expense = expenses[indexExpense].amount;
+        Expense storage expense = expenses[indexExpense];
         uint portion = expense.amount / contributors;
         participants[expense.payBy].balance -= int(expense.amount);
         for (uint i = 0; i < expense.payFor.length; i++) {
-            if (expense.agreement[expense.payFor[i]]) {
+            if (expense.agreements[expense.payFor[i]]) {
                 participants[expense.payFor[i]].balance += int(portion);
             }   
         }       
