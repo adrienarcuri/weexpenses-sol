@@ -66,8 +66,8 @@ contract WeExpenses {
     }
 
     /// Create a new WeExpenses contract
-    function WeExpenses(string name) public {
-        createParticipant(name, msg.sender);
+    function WeExpenses() public {
+        createParticipant("God", msg.sender);
         deployed = true;
     }
 

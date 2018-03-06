@@ -1,0 +1,29 @@
+{
+  "name": "WeExpenses",
+  "version": "1.0.0",
+  "description": "Test it in Remix :",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-register": "^6.26.0",
+    "zeppelin-solidity": "^1.7.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/adrien.arcuri.pro/WeExpenses.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/adrien.arcuri.pro/WeExpenses/issues"
+  },
+  "homepage": "https://gitlab.com/adrien.arcuri.pro/WeExpenses#README"
+}
