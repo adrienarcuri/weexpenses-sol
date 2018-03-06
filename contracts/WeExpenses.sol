@@ -51,6 +51,14 @@ contract WeExpenses {
     // A mapping of all the available refunds to withdraw per address
     mapping(address => uint) public refundsAvailaible;
 
+    event ParticipantCreated(
+        Participant _participant
+    );
+    event RefundCreated(
+        Refund _refund
+    );
+
+
     // This modifier requires that the sender of the transaction is registred as participant
     modifier onlyByParticipant () {
         require(msg.sender == participants[msg.sender].waddress || !deployed); // You must be a participant to create an expense
@@ -74,8 +82,6 @@ contract WeExpenses {
 
         Expense memory expense = Expense(title, amount, date, now, payBy, payFor);
         expenses.push(expense);
-        //syncBalanceExp(expense);
-        //syncBalance(expenses.length-1);
     }
 
     // Verify if several addresses are registred as participant. Return true if we found duplicate else false.
@@ -149,6 +155,8 @@ contract WeExpenses {
         Participant memory participant = Participant({name: name, waddress: waddress, balance: 0, index: 0});
         participant.index = addressList.push(waddress)-1; //add the address to the addressList
         participants[waddress] = participant;
+
+        ParticipantCreated(participant);
     }
 
     // Create a payable refund in ether
