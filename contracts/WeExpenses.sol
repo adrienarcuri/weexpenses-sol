@@ -75,6 +75,7 @@ contract WeExpenses {
     function createExpense(string title, uint amount, uint date,
      address payBy, address[] payFor) external onlyByParticipant()
      {
+        require(amount > 0);
         require(payFor.length > 0 && payFor.length <= 20); // Limit the number of contributors of one expense
         verifyIfParticipant(payBy);
         verifyIfParticipants(payFor);
@@ -152,6 +153,7 @@ contract WeExpenses {
     // Create a new participant in the participants mapping
     function createParticipant(string name, address waddress) onlyByParticipant() public {
         require(waddress != participants[waddress].waddress || !deployed); //only one address per participant
+        require(waddress != address(0)); // avoid to participant address equal to 0x0
         Participant memory participant = Participant({name: name, waddress: waddress, balance: 0, index: 0});
         participant.index = addressList.push(waddress)-1; //add the address to the addressList
         participants[waddress] = participant;
