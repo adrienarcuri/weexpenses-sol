@@ -71,7 +71,7 @@ contract WeExpenses {
 
     /// @notice Constructor of our smart contract. The creator of the smart contract will be the first participant.
     /// @dev 
-    /// @param 
+    /// @param name the name of the first participant
     /// @return 
     function WeExpenses(string name) public {
         createParticipant(name, msg.sender);
@@ -112,7 +112,7 @@ contract WeExpenses {
     /// @param agree the agreement of the participant : true of false
     function setAgreement(uint indexExpense, bool agree) public onlyByParticipant() {
         Expense storage expense = expenses[indexExpense];
-        require(expense.creationDate > expense.creationDate + 4 weeks);
+        require(now < expense.creationDate + 4 weeks);
         require(expense.agreements[msg.sender] != agree);
         uint numberOfAgreeBefore = getNumberOfAgreements(indexExpense);
         /// Warning : There is no agreements when the expense is created. That's mean the balance did not synchronize.
@@ -199,8 +199,8 @@ contract WeExpenses {
     /// @notice Get name of a participant
     /// @param _waddress the address of the participant
     /// @return the name of the participant
-    function getParticipantName(address waddress) public view returns (string) {
-        return participants[waddress].name;
+    function getParticipantName(address _waddress) public view returns (string) {
+        return participants[_waddress].name;
     }
 
     /// @notice Check if there is duplicate inside array
@@ -222,7 +222,7 @@ contract WeExpenses {
     /// @notice Check if each address of the list is registred as participant
     /// @param list the list of address to check 
     /// @return true if all the list is registred as participant, false otherwise
-    function isParticipants(address[] list) internal view {
+    function isParticipants(address[] list) internal view returns (bool) {
         for (uint i = 0; i < list.length; i++) {
             if (!isParticipant(list[i])) {
                 return false;
@@ -232,10 +232,10 @@ contract WeExpenses {
     }
 
     /// @notice Check if each address of the list is registred as participant
-    /// @param list the list of address to check 
+    /// @param _waddress the address to check 
     /// @return true if all the list is registred as participant, false otherwise
-    function isParticipant(address waddress) internal {
-        if (waddress == participants[waddress].waddress) {
+    function isParticipant(address _waddress) internal view returns (bool) {
+        if (_waddress == participants[_waddress].waddress) {
             return true;
         }else {
             return false;
@@ -271,10 +271,10 @@ contract WeExpenses {
             _amount = -(_amount);
         }
 
-        participants[expense.payer].balance -= _amount;
+        participants[expense.payer].balance += _amount;
         for (uint i = 0; i < expense.payees.length; i++) {
             if (expense.agreements[expense.payees[i]]) {
-                participants[expense.payees[i]].balance += _portion;
+                participants[expense.payees[i]].balance -= _portion;
             }   
         }       
     }
