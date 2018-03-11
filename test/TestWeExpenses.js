@@ -55,7 +55,7 @@ contract('WeExpenses', function (accounts) {
             await expectThrow(instance.createParticipant("0 addresss", ZERO_ADDR, { from: SENDER_A }) )
         })
 
-        it('it should create an expense', async function () {
+        it('should create an expense', async function () {
             instance.createExpense("Expense1", 10000, 1519135382, SENDER_A, payForABCD, { from: SENDER_A })
             await checkGetExpense(SENDER_A, 0)
             instance.createExpense("Expense2", 5000, 1519135382, SENDER_B, payForAB, { from: SENDER_A })
@@ -75,7 +75,13 @@ contract('WeExpenses', function (accounts) {
         }
 
         async function checkGetExpense(_from, indexExpense) {
-            let expense = await instance.expenses.call(0, { from: _from })
+            let expense = await instance.expenses.call(indexExpense, { from: _from })
+            assert.typeOf(expense, 'array')
+            assert.lengthOf(expense, 5)
+        }
+
+        async function checkGet(_from, indexExpense) {
+            let expense = await instance.expenses.call(indexExpense, { from: _from })
             assert.typeOf(expense, 'array')
             assert.lengthOf(expense, 5)
         }
