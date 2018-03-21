@@ -137,8 +137,9 @@ contract WeExpenses {
     function createPayment(string _title, address _payee) public onlyByParticipant() payable {   
         address _payer = msg.sender;
         require(msg.value > 0);
-        isParticipant(_payer);
-        isParticipant(_payee);
+        require(_payee != _payer);
+        require(isParticipant(_payer));
+        require(isParticipant(_payee));
         Payment memory payment = Payment({title: _title, amount: msg.value, valueDate: now, payer: _payer, payee: _payee});
         payments.push(payment);
         withdrawals[_payee] += msg.value;
@@ -165,6 +166,12 @@ contract WeExpenses {
             }
         }
         return (max, index);
+    }
+
+    /// @notice Get withdrawal per address
+    /// @return the available withdrawal for the waddress
+    function getWithdrawal(address waddress) public view returns (uint) {
+        return withdrawals[waddress];
     }
 
     /// @notice Get agreement depending on the indexExpenses and address of the participant
@@ -279,7 +286,8 @@ contract WeExpenses {
         }       
     }
   
-    // Synchronize the balance after each new Payment
+    /// @notice Calculate the state of the balance after each new payement
+    /// @param payment which will alter balance
     function syncBalancePayment(Payment payment) internal {
         participants[payment.payee].balance -= int(payment.amount);
         participants[payment.payer].balance += int(payment.amount);
