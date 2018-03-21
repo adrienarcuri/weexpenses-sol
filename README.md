@@ -7,6 +7,7 @@ Feel free to reuse this smart contract to create a group expense for experimenta
 
 ## Getting start
 
+We use [Truffle](https://github.com/trufflesuite/truffle) as development environment framework.
 Clone this Github project and make sur you have the following installed :
 
 ```
@@ -27,6 +28,9 @@ truffle test
 ```
 
 ## Test it in Remix IDE
+
+The contract is testable in [Remix IDE](https://remix.ethereum.org/).
+You can use this test set :
 
 CreateContract by the owner Alice which will be also a participant :
 ```javascript
