@@ -17,7 +17,7 @@ npm install -g truffle
 
 Then, run :
 
-````
+```
 npm install
 ```
 
