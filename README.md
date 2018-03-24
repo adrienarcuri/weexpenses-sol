@@ -34,6 +34,7 @@ The contract is testable in [Remix IDE](https://remix.ethereum.org/).
 You can use this test set :
 
 1. Alice create the contract and register herself as a participant. Use the 1st Remix Account (0xca35b7d915458ef540ade6068dfe2f44e8fa733c) and add "Alice" in the input argument, then push Create:
+
 Create :
 ```javascript
 "Alice"
