@@ -112,7 +112,7 @@ setAgreement
 0, false
 ```
 
-Observe all the balance (step 5). You should have : Alice: 41666666666666667, Bob: -8333333333333333 Cris: 0, Denis: -33333333333333333.
+Observe all the balances (step 5). You should have : Alice: 41666666666666667, Bob: -8333333333333333 Cris: 0, Denis: -33333333333333333.
 
 
 ## License
