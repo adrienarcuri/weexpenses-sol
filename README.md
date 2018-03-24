@@ -5,7 +5,7 @@ It allows participants to record expenses in order to settle debts in a trusless
 Only registered participant can add other participant.
 Feel free to reuse this smart contract to create a group expense for experimental use only.
 
-## Getting start
+## Getting started
 
 We use [Truffle](https://github.com/trufflesuite/truffle) as development environment framework.
 Clone this Github project and make sur you have the following installed :
