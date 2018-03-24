@@ -43,6 +43,9 @@ Create :
 ```
 
 2. Create the other participants with Alice's account (only registered participant can add new participants) :
+
+![CreateParticipant](https://user-images.githubusercontent.com/10615593/37865334-8fdd883e-2f7b-11e8-81b7-7977659d2b23.png)
+
 createParticipant :
 ```javascript
 "Bob", "0x14723a09acff6d2a60dcdf7aa4aff308fddc160c"
@@ -51,6 +54,9 @@ createParticipant :
 ```
 
 3. Create several expenses : Alice pays 100 [Finney](https://medium.com/@tjayrush/what-the-f-is-a-finney-8e727f29e77f) for the food for all. Bob pays for restaurant 50 Finney only for Alice and him. Cris pays 300 Finney of travel cost for Alice, Bob and Denis but not for him. Do not forget to change sender's account when you submit the transaction :
+
+![CreateExpense](https://user-images.githubusercontent.com/10615593/37865362-c01714e8-2f7b-11e8-9e73-baec4fe889e4.png)
+
 
 createExpense :
 ```javascript
@@ -66,12 +72,18 @@ createExpense :
 
 4. Each participant involved in an expense give its agreement for the expense.
 
+![SetAgreement](https://user-images.githubusercontent.com/10615593/37865363-c1eb4f64-2f7b-11e8-93cf-842d04813885.png)
+
+
 setAgreement :
 ```javascript
 // From Alice's account, Bob's account, Cris's account, Denis's account for expense "Food" (4 times)
 0, true
 ```
 5. Get the balance of each participant. You should have the following : Alice: 75000000000000000, Bob: -25000000000000000, Cris: -25000000000000000, Denis: -25000000000000000.
+
+![GetBalance](https://user-images.githubusercontent.com/10615593/37865396-3349cb90-2f7c-11e8-9505-b3e75bf3eb18.png)
+
 
 GetBalance : 
 ```javascript
@@ -86,6 +98,10 @@ GetBalance :
 ```
 6. Make a payment from Bob to Alice of 25 Finney. When you use this function, do not forget to send ether corresponding to the amount of the payment, otherwise the payment fails. 
 
+![CreatePayment](https://user-images.githubusercontent.com/10615593/37865399-3733e8d0-2f7c-11e8-994b-7e4fcb1bdf75.png)
+![Set25Finney](https://user-images.githubusercontent.com/10615593/37865401-3984d856-2f7c-11e8-9641-7cbc07d49bd6.png)
+
+
 CreatePayment :
 ```javascript
 // From Bob's account
@@ -94,6 +110,9 @@ CreatePayment :
 
 7. Observe Alice's withdrawal. It should be equal to 25000000000000000.
 
+![GetWithdrawal](https://user-images.githubusercontent.com/10615593/37865397-359f0ac2-2f7c-11e8-9d7d-d2ba9edaf268.png)
+
+
 GetWithdrawal or withdrawals :
 ```javascript
 "0xca35b7d915458ef540ade6068dfe2f44e8fa733c"
@@ -101,7 +120,7 @@ GetWithdrawal or withdrawals :
 
 8. Withdraw from Alice's account. Just push "withdraw. :
 
-withdraw
+![Withdraw](https://user-images.githubusercontent.com/10615593/37865394-31c4d332-2f7c-11e8-9a23-1e1434647c83.png)
 
 Observe Alice's withdrawal again (step 7). It should be equal to 0.
 
