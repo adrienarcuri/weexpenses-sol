@@ -89,7 +89,7 @@ CreatePayment :
 "TxBobToAlice","0xca35b7d915458ef540ade6068dfe2f44e8fa733c"
 ```
 
-7. Observe Alice's withdrawal. It should be equal to 2500.
+7. Observe Alice's withdrawal. It should be equal to 25000000000000000.
 
 GetWithdrawal or withdrawals :
 ```javascript
@@ -100,7 +100,7 @@ GetWithdrawal or withdrawals :
 
 withdraw
 
-Observe Alice's withdrawal again (step 7). It should be equal to 0. The Alice's account should be increased by 25 Finney (0.025).
+Observe Alice's withdrawal again (step 7). It should be equal to 0. The Alice's account should be increased by 25 Finney (0.025 Ether).
 Observe all the balance (step 5). You should have : Alice: 50000000000000000, Bob: 0, Cris: -25000000000000000, Denis: -25000000000000000.
 
 9. Cancel the agreement of Cris on the first expense.
