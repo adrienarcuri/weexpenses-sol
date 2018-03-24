@@ -7,11 +7,11 @@ Feel free to reuse this smart contract to create a group expense for experimenta
 
 ## Getting started
 
-We use [Truffle](https://github.com/trufflesuite/truffle) as development environment framework.
+We use [Truffle](https://github.com/trufflesuite/truffle) as development environment framework and [Ganache CLI](https://github.com/trufflesuite/ganache-cli) as Ethereum RP client.
 Clone this Github project and make sur you have the following installed :
 
 ```
-npm install -g ethereumjs-testrpc
+npm install -g ganache-cli
 npm install -g truffle
 ```
 
@@ -24,6 +24,7 @@ npm install
 ## Test
 
 ```
+ganache-cli
 truffle test
 ```
 
