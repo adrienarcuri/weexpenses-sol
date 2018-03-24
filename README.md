@@ -69,3 +69,7 @@ createPayement :
 "Payment2", "0x583031d1113ad414f02576bd6afabfb302140225" // Send payment to Denis. "msg.value" must be > 0
 
 ```
+
+## License
+
+Realesed under MIT License [here](https://github.com/adrienarcuri/weexpenses-sol/blob/master/LICENSE).
