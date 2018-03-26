@@ -3,7 +3,10 @@
 WeExpense is a solidity smart contract to manage group expenses on Ethereum Blockchain.
 It allows participants to record expenses in order to settle debts in a trusless environment.
 Only registered participant can add other participant.
+
 Feel free to reuse this smart contract to create a group expense for experimental use only.
+
+See more : [Manage Group Expenses on Ethereum Blockchain with Solidity](https://medium.com/@adrien.arcuri.pro/manage-group-expenses-on-ethereum-blockchain-with-solidity-e0026f2720f3)
 
 ## Getting started
 
