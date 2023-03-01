@@ -20,7 +20,7 @@
     "babel-register": "^6.26.0",
     "eslint-plugin-import": "^2.9.0",
     "package.json": "^2.0.1",
-    "solidity-coverage": "^0.4.11",
+    "solidity-coverage": "^0.8.2",
     "zeppelin-solidity": "^1.7.0"
   },
   "scripts": {
